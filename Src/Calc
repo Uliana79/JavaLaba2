@@ -1,0 +1,169 @@
+import java.util.Objects;
+import java.util.Stack;
+public  class Calc {
+private  String Expr; //переменная для выражения
+Calc(String str) //конструктор
+{
+        this.Expr = str;
+}
+
+private void del_S() //удаляем пробелы
+{
+        StringBuilder str = new StringBuilder();
+        for (int pos = 0; pos < Expr.length(); pos++)
+                if (Expr.charAt(pos) != ' ')
+                        str.append(Expr.charAt(pos));
+        Expr = str.toString();
+}
+
+
+private boolean correct()//проверка на корректность
+        {
+                if (Expr.isEmpty()) return false;
+                else {
+                        del_S();
+                        int bracket = 0;
+                        for (int i = 0; i < Expr.length(); i++) {
+                                if (bracket >= 0) {
+                                        switch (Expr.charAt(i)) {
+                                                case '+': case '-': case '*': case '/': {
+                                                        if(i == 0 || i == Expr.length() - 1) return false;
+                                                        else
+                                                                if (Expr.charAt(i+1) == '+' || Expr.charAt(i+1) == '-' ||
+                                                                        Expr.charAt(i+1) == '*' || Expr.charAt(i+1) == '/' ||
+                                                                        Expr.charAt(i+1) == ')') return false;
+                                                                break;
+                                                }
+                                                case '(': {
+                                                        bracket++;
+                                                        if (Expr.charAt(i+1) == '+' || Expr.charAt(i+1) == '-' ||
+                                                                Expr.charAt(i+1) == '*' || Expr.charAt(i+1) == '/' ||
+                                                                Expr.charAt(i+1) == ')') return false;
+                                                        else if (i == Expr.length() - 1) return false;
+                                                        break;
+                                                }
+                                                case ')': {
+                                                        bracket--;
+                                                        if (i == 0) return false;
+                                                        else
+                                                                if (Expr.charAt(i-1) == '+' || Expr.charAt(i-1) == '-' ||
+                                                                        Expr.charAt(i-1) == '*' || Expr.charAt(i-1) == '/' ||
+                                                                        Expr.charAt(i-1) == '(' ) return false;
+                                                                break;
+                                                }
+                                                default:
+                                                        if (Expr.charAt(i) >= '0' && Expr.charAt(i) <= '9') {
+                                                                if (i != 0)
+                                                                        if (Expr.charAt(i-1) == ')' ) return false;
+                                                                if (i != Expr.length()-1)
+                                                                        if (Expr.charAt(i+1) == '(' ) return false;
+                                                        }
+                                                        else return false;
+                                        }
+                                }
+                                else return false;
+                        }
+                        return bracket == 0;
+                }
+        }
+
+private int priority(char ch) //приоритеты операторов
+{
+        if (ch == '*' || ch == '/') return 3;
+        else
+                if (ch == '+' || ch == '-') return 2;
+                else
+                        if (ch == '(') return 1;
+                        else
+                                if (ch == ')') return -1;
+                                return 0;
+}
+
+
+private boolean postfix() //постфиксная запись
+{
+        if (!correct() || Expr.isEmpty()) return false;
+        else {
+                Stack<Character> stack_ = new Stack<Character>();
+                StringBuilder str = new StringBuilder();
+                for (int i = 0; i < Expr.length(); i++) {
+                        int t_o = priority(Expr.charAt(i));
+                        if (t_o == 0) str.append(Expr.charAt(i));
+                        else
+                                if (t_o == 1) stack_.push(Expr.charAt(i));
+                                else
+                                        if (t_o > 1) {
+                                                str.append(' ');
+                                                while (!stack_.empty()) {
+                                                        if (priority(stack_.peek()) >= t_o) str.append(stack_.pop());
+                                                        else break;
+                                                }
+                                                stack_.push(Expr.charAt(i));
+                                        }
+                                        else
+                                                if (t_o == -1) {
+                                                        str.append(' ');
+                                                        while (priority(stack_.peek()) != 1)
+                                                                str.append(stack_.pop());
+                                                        stack_.pop();
+                                                }
+                }
+                while (!stack_.empty())
+                        str.append(stack_.pop());
+                Expr = str.toString();
+                return true;
+        }
+}
+
+
+public boolean calculate() //сам калькулятор (считает выражение в постфиксной форме)
+{
+        boolean t = postfix();
+        if (!t) return false;
+        else {
+                StringBuilder res = new StringBuilder();
+                Stack<Double> str = new Stack<Double>();
+                for (int i = 0; i < Expr.length(); i++) {
+                        if (Expr.charAt(i) == ' ') continue;
+                        if (priority (Expr.charAt(i)) == 0){
+                                while (Expr.charAt(i) != ' ' && priority(Expr.charAt(i)) == 0) {
+                                        res.append(Expr.charAt(i++));
+                                        if (i == Expr.length()) break;
+                                }
+                                str.push(Double.parseDouble(res.toString()));
+                                res = new StringBuilder();
+                        }
+                        if (priority(Expr.charAt(i)) > 1) {
+                                double a = str.pop();
+                                double b = str.pop();
+                                if (Expr.charAt(i) == '+') str.push(b + a);
+                                if (Expr.charAt(i) == '-') str.push(b - a);
+                                if (Expr.charAt(i) == '*') str.push(b * a);
+                                if (Expr.charAt(i) == '/') {
+                                        if (a == 0) return false;
+                                        str.push(b / a);
+                                }
+                        }
+                }
+                Expr = Double.toString(str.pop());
+                return true;
+        }
+}
+
+
+@Override
+public String toString() //возврат
+{
+        return Expr;
+}
+
+@Override
+public boolean equals(Object obj)//равенство
+{
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Calc that = (Calc) obj;
+        return Objects.equals(Expr, that.Expr);
+}
+
+}
