@@ -1,0 +1,42 @@
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+
+public class Tests {
+
+    @Test
+    public void calculate_test1() {
+        String str = "47093-59*(3046+781)/10";
+        Calc exp = new Calc (str);
+        assertTrue(exp.calculate());
+        assertEquals("24513.7", exp.toString());
+    }
+
+    @Test
+    public void calculate_test2() {
+        String str = "47093-(59*(3046+781)/10";
+        Calc exp = new Calc(str);
+        assertFalse(exp.calculate());
+    }
+
+    @Test
+    public void calculate_test4() {
+        String str = "47093-59*)3046+781(/10";
+        Calc exp = new Calc(str);
+        assertFalse(exp.calculate());
+    }
+
+    @Test
+    public void calculate_test3() {
+        String str = "47093-59*(3046++781)/10";
+        Calc exp = new Calc(str);
+        assertFalse(exp.calculate());
+    }
+
+    @Test
+    public void calculate_test6() {
+        String str = "a-59*(3046+781)/10";
+        Calc exp = new Calc(str);
+        assertFalse(exp.calculate());
+    }
+}
