@@ -1,0 +1,29 @@
+import java.util.Scanner;
+import java.util.Objects;
+import java.lang.String;
+
+
+public class Main {
+
+    public static void main (String[] args) {
+        String code;
+        boolean a;
+        Scanner in = new Scanner (System.in );
+        do {
+            System.out.print("Введите выражение: ");
+            String str = in.nextLine();
+            Calc expr = new Calc (str);
+            a = expr.calculate();
+            if (a) {
+                System.out.print(str + " = ");
+                System.out.println(expr);
+            }
+            else {
+                System.out.print("Выражение некорректно!");
+            }
+            System.out.println("Выйти?(y/n)");
+            code = in.nextLine();
+        }
+        while (!Objects.equals(code, "y"));
+    }
+}
